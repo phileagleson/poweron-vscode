@@ -1,0 +1,7 @@
+out
+node_modules 
+.vscode-test
+temp
+*.vsix
+*.log
+*.tsbuildinfo

@@ -1,0 +1,12 @@
+.vscode/
+src/
+**/test/
+**/tests/
+
+**/*.ts
+**/*.map
+**/*.log
+**/*.lock
+**/*.tsbuildinfo
+**/tsconfig.json
+
