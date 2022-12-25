@@ -49,6 +49,12 @@
 				}
 			}
 		},
+  "commands": [
+   {
+     "command": "poweronlsp.showDataTypeNotification",
+     "title": "Choose DataType"
+   }
+ ],
 		"languages": [
 			{
 				"id": "poweron",
