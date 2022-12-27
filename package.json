@@ -36,17 +36,6 @@
 					"default": "",
 					"description": "Allows you to specify a folder containing common files that are always included as part of the workspace\nCommon RD/RB files and shared includes are recommended.\nNote: adding too many files here will slow performance"
 				},
-				"phileagleson.poweron-vscode.trace.server": {
-					"scope": "window",
-					"type": "string",
-					"enum": [
-						"off",
-						"messages",
-						"verbose"
-					],
-					"default": "off",
-					"description": "Traces the communication between VS Code and the language server."
-				}
 			}
 		},
   "commands": [
