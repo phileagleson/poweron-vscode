@@ -35,15 +35,15 @@
 					"type": "string",
 					"default": "",
 					"description": "Allows you to specify a folder containing common files that are always included as part of the workspace\nCommon RD/RB files and shared includes are recommended.\nNote: adding too many files here will slow performance"
-				},
+				}
 			}
 		},
-  "commands": [
-   {
-     "command": "poweronlsp.showDataTypeNotification",
-     "title": "Choose DataType"
-   }
- ],
+		"commands": [
+			{
+				"command": "poweronlsp.showDataTypeNotification",
+				"title": "Choose DataType"
+			}
+		],
 		"languages": [
 			{
 				"id": "poweron",
