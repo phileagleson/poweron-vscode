@@ -4,7 +4,7 @@
 	"description": "VSCode part of a language server for PowerOn",
 	"author": "Phil Eagleson",
 	"license": "MIT",
-	"version": "0.5.1",
+	"version": "0.6.0",
 	"publisher": "phileagleson",
 	"repository": {
 		"type": "git",
@@ -1088,7 +1088,7 @@
 		"build:force": "npm run clean && npm run build --verbose --force"
 	},
 	"dependencies": {
-		"poweron-language-server": "^0.5.1",
+		"poweron-language-server": "^0.6.0",
 		"vscode-languageclient": "^7.0.0"
 	},
 	"devDependencies": {
