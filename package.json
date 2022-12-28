@@ -1088,7 +1088,7 @@
 		"build:force": "npm run clean && npm run build --verbose --force"
 	},
 	"dependencies": {
-		"poweron-language-server": "^0.6.2",
+		"poweron-language-server": "^0.6.4",
 		"vscode-languageclient": "^7.0.0"
 	},
 	"devDependencies": {
