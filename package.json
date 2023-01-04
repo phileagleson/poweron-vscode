@@ -4,7 +4,7 @@
 	"description": "VSCode part of a language server for PowerOn",
 	"author": "Phil Eagleson",
 	"license": "MIT",
-	"version": "0.6.6",
+	"version": "0.6.7",
 	"publisher": "phileagleson",
 	"repository": {
 		"type": "git",
