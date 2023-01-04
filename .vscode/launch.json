@@ -11,6 +11,7 @@
         "--extensionDevelopmentPath=${workspaceRoot}"
       ],
       "env": {
+        "POWERON_SERVER_PATH":""
       },
 			"outFiles": [
         "${workspaceRoot}/out/**/*.js"
