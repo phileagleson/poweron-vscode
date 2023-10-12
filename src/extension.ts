@@ -1,4 +1,5 @@
 import * as path from "path";
+import { hostname }from "os"
 import {
   commands,
   ExtensionContext,
@@ -12,6 +13,22 @@ import {
   ServerOptions,
   TransportKind,
 } from "vscode-languageclient/node";
+
+type SymConfig = {
+  name: string,
+  hostName: string,
+  port: string,
+  aixPassword: string,
+  aixUserName: string,
+  device: string,
+  symNumber: string,
+  symUserNumber: string,
+  symPassword: string
+}
+
+type PowerOnConfig = {
+  arg1: SymConfig[]
+}
 
 let client: LanguageClient;
 export const DEFINETITLE = `Add Variable to DEFINE division`;
@@ -57,12 +74,28 @@ export function activate(context: ExtensionContext) {
         validatePoweron
       )
     )
+    customCommands.push(
+      commands.registerCommand(
+        "poweron.installPoweron",
+        installPoweron
+      )
+    )
+    customCommands.push(
+      commands.registerCommand(
+        "poweron.deployPoweron",
+        deployPoweron
+      )
+    )
 
-    const configHandler = client.onNotification("workspace/configuration",() =>{
+    const configHandler = client.onNotification("workspace/configuration",async () =>{
       const config = workspace.getConfiguration()
-      let syms =  config.get("poweron.symConfigurations") as Array<any>
+      const lochost = hostname()
+      let syms =  await config.get("poweron.symConfigurations") as Array<SymConfig>
+      syms = syms.map(sym => {sym.device=lochost; return sym})
       client.sendNotification("workspace/didChangeConfiguration",{
-        symConfigurations: syms,
+        settings: {
+         symConfigurations: syms,
+        }
       })
     })
   
@@ -81,17 +114,7 @@ export function deactivate(): Thenable<void> | undefined {
 }
 
 async function validatePoweron() {
-  const config = workspace.getConfiguration()
-  let syms =  config.get("poweron.symConfigurations") as Array<any>
-
-  console.log({syms})
-
-  const symConfigName = await window.showQuickPick(syms.map(sym =>{
-    return sym.name
-  })) 
-
-  console.log({uri:window.activeTextEditor.document.uri.toString()})
-
+  const symConfigName = await promptForSym("Validate Poweron")
   if (symConfigName) {
     client.sendNotification("workspace/executeCommand", {
       command: "lsp.validatePoweron",
@@ -101,10 +124,47 @@ async function validatePoweron() {
           uri: window.activeTextEditor.document.uri.toString()
         }
       ]
-
     })
   }
+}
 
+async function installPoweron() {
+  const symConfigName = await promptForSym("Install Poweron")
+
+  if (symConfigName) {
+    client.sendNotification("workspace/executeCommand", {
+      command: "lsp.installPoweron",
+      arguments: [
+        {
+          symConfigName,
+          uri: window.activeTextEditor.document.uri.toString()
+        }
+      ]
+    })
+  }
+}
+
+async function deployPoweron() {
+  const symConfigName = await promptForSym("Deploy Poweron")
+  if (symConfigName) {
+    client.sendNotification("workspace/executeCommand", {
+      command: "lsp.deployPoweron",
+      arguments: [
+        {
+          symConfigName,
+          uri: window.activeTextEditor.document.uri.toString()
+        }
+      ]
+    })
+  }
+}
+
+async function promptForSym(title: string): Promise<string> {
+  const config = workspace.getConfiguration()
+  let syms =  await config.get("poweron.symConfigurations") as Array<SymConfig>
+  return await window.showQuickPick(syms.map(sym =>{
+    return sym.name
+  }),{title}) 
 }
 
 async function handleNotification(arg1: any, arg2: any, arg3: any) {

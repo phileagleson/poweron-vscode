@@ -81,7 +81,7 @@
                   "description": "Your Sym User Nuber",
                   "default": "123"
                 },
-                "symUserPassword": {
+                "symPassword": {
                   "type": "string",
                   "title": "Sym User Password for this Sym",
                   "description": "Your Sym User Password",
@@ -108,11 +108,19 @@
         "title": "Validate Poweron"
       },
       {
+        "command": "poweron.deployPoweron",
+        "title": "Deploy Poweron"
+      },
+      {
         "command": "poweron.installPoweron",
         "title": "Install Poweron"
       }
     ],
     "keybindings": [
+      {
+        "command": "poweron.deployPoweron",
+        "key": "F6"
+      },
       {
         "command": "poweron.validatePoweron",
         "key": "F7"
