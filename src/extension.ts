@@ -26,10 +26,6 @@ type SymConfig = {
   symPassword: string
 }
 
-type PowerOnConfig = {
-  arg1: SymConfig[]
-}
-
 let client: LanguageClient;
 export const DEFINETITLE = `Add Variable to DEFINE division`;
 
@@ -39,16 +35,16 @@ export function activate(context: ExtensionContext) {
   const serverOptions: ServerOptions = {
     run: {
       command: serverModule,
-      transport: TransportKind.ipc,
+      transport: TransportKind.stdio,
     },
     debug: {
       command: serverModule,
-      transport: TransportKind.ipc,
+      transport: TransportKind.stdio,
     },
 };
 
   const clientOptions: LanguageClientOptions = {
-    documentSelector: [{ scheme: "file", language: "poweron" }],
+    documentSelector: [{pattern: "**/*"}],
     progressOnInitialization: true,
   };
 
@@ -86,6 +82,12 @@ export function activate(context: ExtensionContext) {
         deployPoweron
       )
     )
+    customCommands.push(
+      commands.registerCommand(
+        "poweron.importPoweron",
+        getPoweronList   
+      )
+    )
 
     const configHandler = client.onNotification("workspace/configuration",async () =>{
       const config = workspace.getConfiguration()
@@ -98,7 +100,7 @@ export function activate(context: ExtensionContext) {
         }
       })
     })
-  
+
     context.subscriptions.push(...customCommands,configHandler);
 
   });
@@ -114,7 +116,7 @@ export function deactivate(): Thenable<void> | undefined {
 }
 
 async function validatePoweron() {
-  const symConfigName = await promptForSym("Validate Poweron")
+  const symConfigName = await promptForSym("Validate Poweron", false)
   if (symConfigName) {
     client.sendNotification("workspace/executeCommand", {
       command: "lsp.validatePoweron",
@@ -129,7 +131,7 @@ async function validatePoweron() {
 }
 
 async function installPoweron() {
-  const symConfigName = await promptForSym("Install Poweron")
+  const symConfigName = await promptForSym("Install Poweron", false)
 
   if (symConfigName) {
     client.sendNotification("workspace/executeCommand", {
@@ -145,26 +147,69 @@ async function installPoweron() {
 }
 
 async function deployPoweron() {
-  const symConfigName = await promptForSym("Deploy Poweron")
-  if (symConfigName) {
+  const symConfigNames = await promptForSym("Deploy Poweron", true)
+  if (symConfigNames) {
     client.sendNotification("workspace/executeCommand", {
       command: "lsp.deployPoweron",
-      arguments: [
+      arguments: 
         {
-          symConfigName,
+          deployToSyms: symConfigNames,
           uri: window.activeTextEditor.document.uri.toString()
         }
-      ]
+      
     })
   }
 }
 
-async function promptForSym(title: string): Promise<string> {
+async function promptForSym(title: string, canPickMany: boolean): Promise<string> {
   const config = workspace.getConfiguration()
   let syms =  await config.get("poweron.symConfigurations") as Array<SymConfig>
   return await window.showQuickPick(syms.map(sym =>{
     return sym.name
-  }),{title}) 
+  }),{title,canPickMany}) 
+}
+
+async function promptForPoweronFilter(title: string): Promise<string> {
+   return await window.showInputBox({title})
+}
+
+type PoweronList_Response = {
+  TaskManager_PowerOnList: {
+    poweronList: string[]
+  }
+}
+
+async function getPoweronList(): Promise<void> {
+  const config = await promptForSym("Import Poweron(s) - Choose Sym(s)", false)
+  if (config) {
+  const filter = await promptForPoweronFilter("Search (*=any, ?=any char):")
+  if (config) {
+    const res = await client.sendRequest("workspace/executeCommand",{
+      command: "lsp.getPoweronList",
+      arguments: [{
+        searchFilter: filter,
+        symConfigName: config
+      }]
+    }) as PoweronList_Response
+
+    if (res) {
+      const selected = await getPoweronSelection("Choose Poweron(s)", res.TaskManager_PowerOnList.poweronList)
+      if (selected) {
+        client.sendRequest("workspace/executeCommand", {
+          command: "lsp.importPowerons",
+          arguments: [{
+            symConfigName: config,
+            poweronList: selected,
+          }]
+        })
+      }
+    }
+   }
+  }
+}
+
+async function getPoweronSelection(title: string, list: string[]): Promise<string[]> {
+  return await window.showQuickPick(list, {title, canPickMany: true})
 }
 
 async function handleNotification(arg1: any, arg2: any, arg3: any) {
